@@ -1,4 +1,4 @@
-package com.justplay1994.github.cruiser.core.netty.server.http.proxyserver;
+package com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.front;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
@@ -29,13 +29,15 @@ public class HttpProxyChannelInitializer extends ChannelInitializer<SocketChanne
         //将多个http消息聚合
         ch.pipeline().addLast("aggregator", new HttpObjectAggregator(1024*1024*64));
         //反向代理前端
-        ch.pipeline().addLast("proxyFrontInBound", new HttpProxyServerFrontInBoundHandler());
+        ch.pipeline().addLast("proxyFrontInBound", new HttpProxyFrontServerInBoundHandler());
     }
 
+    //TODO 待验证
     public void addLastChannel(ChannelHandler channelHandler){
         channelPipeline.addLast(channelHandler);
     }
 
+    //TODO 待验证
     public void removeChannel(ChannelHandler channelHandler){
         channelPipeline.remove(channelHandler);
     }

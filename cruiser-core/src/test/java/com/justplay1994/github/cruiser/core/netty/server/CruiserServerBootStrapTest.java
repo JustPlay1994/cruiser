@@ -20,7 +20,6 @@ public class CruiserServerBootStrapTest {
     public void startHttpProxyServer(){
         CruiserServerBootStrap bootStrap = new CruiserServerBootStrap(8844);
         bootStrap.start();
-
     }
 
 }

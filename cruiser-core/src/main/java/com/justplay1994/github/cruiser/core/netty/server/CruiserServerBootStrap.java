@@ -1,7 +1,7 @@
 package com.justplay1994.github.cruiser.core.netty.server;
 
-import com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.HttpProxyChannelInitializer;
-import com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.HttpProxyServerFrontInBoundHandler;
+import com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.front.HttpProxyChannelInitializer;
+import com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.front.HttpProxyFrontServerInBoundHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -77,7 +77,7 @@ public class CruiserServerBootStrap {
                         ch.pipeline().addLast(new HttpServerCodec());
                         //将多个http消息聚合
                         ch.pipeline().addLast("aggregator", new HttpObjectAggregator(1024*1024*64));// 将 解码到的多个http消息合成一个FullHttpRequest/FullHttpRespone
-                        ch.pipeline().addLast(new HttpProxyServerFrontInBoundHandler());
+                        ch.pipeline().addLast(new HttpProxyFrontServerInBoundHandler());
                     }
                 }).childOption(ChannelOption.SO_KEEPALIVE, false);
         ChannelFuture f = null;

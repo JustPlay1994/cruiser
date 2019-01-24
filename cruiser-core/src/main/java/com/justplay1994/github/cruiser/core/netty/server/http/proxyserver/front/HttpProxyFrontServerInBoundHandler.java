@@ -1,11 +1,14 @@
-package com.justplay1994.github.cruiser.core.netty.server.http.proxyserver;
+package com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.front;
 
+import com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.back.HttpProxyBackClient;
+import com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.back.HttpProxyBackClientInBoundHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.logging.LoggingHandler;
@@ -45,49 +48,15 @@ import lombok.extern.slf4j.Slf4j;
  * TODO 新增功能：拦截器机制
  */
 @Slf4j
-public class HttpProxyServerFrontInBoundHandler extends ChannelInboundHandlerAdapter {
+public class HttpProxyFrontServerInBoundHandler extends ChannelInboundHandlerAdapter {
 
 
     private Channel tomcatChannel;
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
-
-        final Channel proxyServerChannel = ctx.channel();
-        Bootstrap b = new Bootstrap();
-        b.group(new NioEventLoopGroup(1))
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, false);
-        b.handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            public void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(new LoggingHandler());
-                ch.pipeline().addLast(new LoggingHandler());
-                ch.pipeline().addLast(new HttpClientCodec());
-                ch.pipeline().addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 64));// 将 解码到的多个http消息合成一个FullHttpRequest/FullHttpRespone
-                ch.pipeline().addLast(new HttpProxyServerBackInBoundHandler(proxyServerChannel));
-            }
-        });
-        ChannelFuture f = b.connect("10.192.19.121", 8081);
-        tomcatChannel = f.channel();
-        f.addListener(future -> {
-            if (future.isSuccess()){
-                log.debug("http proxy back channel is success!");
-//                proxyServerChannel.read();
-                tomcatChannel.writeAndFlush(msg).addListener((ChannelFutureListener) future1 -> {
-                    if (future1.isSuccess()) {
-                        // was able to flush out data, start to read the next chunk
-                        ctx.channel().read();
-                    } else {
-                        future1.channel().close();
-                    }
-                });
-            } else {
-                // Close the connection if the connection attempt has failed.
-//                proxyServerChannel.close();
-                log.debug("http proxy back channel is other!");
-            }
-        });
+        if (msg instanceof FullHttpRequest)
+            new HttpProxyBackClient(ctx, (FullHttpRequest) msg).connect();
     }
 
     @Override

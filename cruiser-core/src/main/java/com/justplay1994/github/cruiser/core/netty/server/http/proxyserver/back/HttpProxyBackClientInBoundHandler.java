@@ -1,7 +1,10 @@
-package com.justplay1994.github.cruiser.core.netty.server.http.proxyserver;
+package com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.back;
 
+import com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.front.HttpProxyFrontServerInBoundHandler;
 import io.netty.channel.*;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,44 +26,36 @@ import lombok.extern.slf4j.Slf4j;
  * 接收下游服务器返回的包体，并转发给客户端。
  */
 @Slf4j
-public class HttpProxyServerBackInBoundHandler extends ChannelInboundHandlerAdapter {
+public class HttpProxyBackClientInBoundHandler extends ChannelInboundHandlerAdapter {
 
-    private final Channel inboundChannel;
+    private final Channel frontChannel;
 
-    public HttpProxyServerBackInBoundHandler(Channel inboundChannel){
-        this.inboundChannel = inboundChannel;
+    public HttpProxyBackClientInBoundHandler(Channel frontChannel){
+        this.frontChannel = frontChannel;
     }
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof FullHttpResponse){
             HttpResponse response = (FullHttpResponse)msg;
-
+//            response.headers().set(new DefaultHttpHeaders());
+            response.headers().add(HttpHeaderNames.CACHE_CONTROL, "no-cache");  //取消缓存，防止301永久重定向，方便调试
             log.info(response.toString());
         }
 
-        inboundChannel.writeAndFlush(msg).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) {
+        frontChannel.writeAndFlush(msg).addListener(future -> {
                 if (future.isSuccess()) {
                     ctx.channel().read();
-                } else {
-                    future.channel().close();
                 }
-            }
         });
     }
 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        inboundChannel.read();
+        frontChannel.read();
     }
 
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        HttpProxyServerFrontInBoundHandler.closeOnFlush(inboundChannel);
-    }
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         ctx.fireChannelRegistered();
@@ -69,12 +64,6 @@ public class HttpProxyServerBackInBoundHandler extends ChannelInboundHandlerAdap
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         ctx.fireChannelUnregistered();
-    }
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("",cause);
-        cause.printStackTrace();
-        HttpProxyServerFrontInBoundHandler.closeOnFlush(ctx.channel());
     }
 
 }
