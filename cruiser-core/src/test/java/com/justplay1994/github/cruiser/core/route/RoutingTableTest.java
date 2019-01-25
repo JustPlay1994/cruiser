@@ -1,7 +1,7 @@
 package com.justplay1994.github.cruiser.core.route;
 
 import com.justplay1994.github.cruiser.core.exception.RouteException;
-import com.justplay1994.github.cruiser.core.route.impl.SimpleRoutingTable;
+import com.justplay1994.github.cruiser.core.route.impl.MemoryRoutingTable;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
@@ -21,13 +21,13 @@ public class RoutingTableTest {
 
     @Test
     public void routingTableTest() throws RouteException, MalformedURLException {
-        BaseCruiserRoute baseCruiserRoute = new BaseCruiserRoute();
+        BaseCruiserRouteItem baseCruiserRoute = new BaseCruiserRouteItem();
         baseCruiserRoute.setProxy_pass(new URL("https://www.baidu.com"));
         baseCruiserRoute.setLocation("/baidu/*");
-        SimpleRoutingTable.getInstance().addRoute("/baidu", baseCruiserRoute);
+        MemoryRoutingTable.getInstance().addRoute("/baidu", baseCruiserRoute);
 
-        BaseCruiserRoute b = SimpleRoutingTable.getInstance().match("/baidu");
-        BaseCruiserRoute b2 = SimpleRoutingTable.getInstance().match("/baidu/123");
+        BaseCruiserRouteItem b = MemoryRoutingTable.getInstance().match("/baidu");
+        BaseCruiserRouteItem b2 = MemoryRoutingTable.getInstance().match("/baidu/123");
         System.out.println();
 
     }

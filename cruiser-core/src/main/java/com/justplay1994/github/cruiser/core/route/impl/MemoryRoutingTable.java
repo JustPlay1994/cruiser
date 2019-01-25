@@ -12,15 +12,9 @@ package com.justplay1994.github.cruiser.core.route.impl;
  **/
 
 import com.justplay1994.github.cruiser.core.exception.RouteException;
-import com.justplay1994.github.cruiser.core.route.BaseCruiserRoute;
+import com.justplay1994.github.cruiser.core.route.BaseCruiserRouteItem;
 import com.justplay1994.github.cruiser.core.route.RoutingTable;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * thread safe
@@ -28,13 +22,13 @@ import java.net.URL;
  * singleton
  */
 @Slf4j
-public class SimpleRoutingTable implements RoutingTable {
+public class MemoryRoutingTable implements RoutingTable {
 
-    private static SimpleRoutingTable simpleRoutingTable;
+    private static MemoryRoutingTable simpleRoutingTable;
 
-    public static SimpleRoutingTable getInstance(){
+    public static MemoryRoutingTable getInstance(){
         if (simpleRoutingTable == null)
-            simpleRoutingTable =  new SimpleRoutingTable();
+            simpleRoutingTable =  new MemoryRoutingTable();
         return simpleRoutingTable;
     }
 
@@ -54,7 +48,7 @@ public class SimpleRoutingTable implements RoutingTable {
      * 支持path或者full proxy_pass
      * @return
      */
-    public BaseCruiserRoute match(String location) {
+    public BaseCruiserRouteItem match(String location) {
 
 //        PathMatcher pathMatcher = new AntPathMatcher();
 
@@ -70,7 +64,7 @@ public class SimpleRoutingTable implements RoutingTable {
     }
 
     @Override
-    public void addRoute(String location, BaseCruiserRoute cruiserRoute) throws RouteException {
+    public void addRoute(String location, BaseCruiserRouteItem cruiserRoute) throws RouteException {
         if (routingTable.get(location) != null)
             throw new RouteException("Add route error, this location["+location+"] is exist");
         routingTable.put(location, cruiserRoute);
@@ -80,7 +74,7 @@ public class SimpleRoutingTable implements RoutingTable {
     public void addRoute(String location, String path) throws Exception {
         if (routingTable.get(location) != null)
             throw new RouteException("Add route error, this location["+location+"] is exist");
-        routingTable.put(location, new BaseCruiserRoute(location, path));
+        routingTable.put(location, new BaseCruiserRouteItem(location, path));
     }
 
     @Override
@@ -90,7 +84,7 @@ public class SimpleRoutingTable implements RoutingTable {
         routingTable.remove(location);
     }
 
-    public BaseCruiserRoute getRoute(String location) {
+    public BaseCruiserRouteItem getRoute(String location) {
         return routingTable.get(location);
     }
 
@@ -102,7 +96,7 @@ public class SimpleRoutingTable implements RoutingTable {
      * @param cruiserRoute
      */
     @Override
-    synchronized public void updateRoute(String location, BaseCruiserRoute cruiserRoute) {
+    synchronized public void updateRoute(String location, BaseCruiserRouteItem cruiserRoute) {
 
         routingTable.get(location).updateAll(cruiserRoute);
 

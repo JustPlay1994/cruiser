@@ -23,7 +23,7 @@ import java.net.URL;
  */
 @Data
 @NoArgsConstructor
-public class BaseCruiserRoute {
+public class BaseCruiserRouteItem {
 
     //====== base properties ==================
 
@@ -36,12 +36,12 @@ public class BaseCruiserRoute {
     // ========== back properties ================
 //    String backMaxConnection;
 
-    public BaseCruiserRoute(String location, String proxy_pass) throws MalformedURLException {
+    public BaseCruiserRouteItem(String location, String proxy_pass) throws MalformedURLException {
         this.location = location;
         this.proxy_pass = new URL(proxy_pass);
     }
 
-    public void updateAll(BaseCruiserRoute baseCruiserRoute){
+    public void updateAll(BaseCruiserRouteItem baseCruiserRoute){
         this.proxy_pass = baseCruiserRoute.getProxy_pass();
         this.location = baseCruiserRoute.getLocation();
     }

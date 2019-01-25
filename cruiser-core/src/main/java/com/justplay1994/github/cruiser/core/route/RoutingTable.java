@@ -31,19 +31,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public interface RoutingTable {
 
-    ConcurrentHashMap<String, BaseCruiserRoute> routingTable = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, BaseCruiserRouteItem> routingTable = new ConcurrentHashMap<>();
 
     // ------------ 路由表维护API -----------------
 
-    void addRoute(String location, BaseCruiserRoute cruiserRoute) throws RouteException;
+    void addRoute(String location, BaseCruiserRouteItem cruiserRoute) throws RouteException;
 
     public void addRoute(String location, String path) throws RouteException, Exception;
 
     void deleteRoute(String location) throws RouteException;
 
-    BaseCruiserRoute getRoute(String location);
+    BaseCruiserRouteItem getRoute(String location);
 
-    void updateRoute(String location, BaseCruiserRoute cruiserRoute);
-
+    void updateRoute(String location, BaseCruiserRouteItem cruiserRoute);
 
 }

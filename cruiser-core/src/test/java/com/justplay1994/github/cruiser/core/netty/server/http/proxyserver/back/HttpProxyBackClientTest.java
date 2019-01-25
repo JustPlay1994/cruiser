@@ -1,13 +1,9 @@
 package com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.back;
 
-import com.justplay1994.github.cruiser.core.exception.RouteException;
 import com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.HttpProxyServer;
-import com.justplay1994.github.cruiser.core.route.impl.SimpleRoutingTable;
-import io.netty.handler.codec.DefaultHeaders;
+import com.justplay1994.github.cruiser.core.route.impl.MemoryRoutingTable;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * @Package: com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.back
@@ -45,8 +41,8 @@ public class HttpProxyBackClientTest {
 
     @Test
     public void forwardTest() throws Exception {
-        SimpleRoutingTable.getInstance().addRoute("/futian/","http://10.192.19.121:8081/");
-        SimpleRoutingTable.getInstance().addRoute("/baidu","https://www.baidu.com");
+        MemoryRoutingTable.getInstance().addRoute("/futian/","http://10.192.19.121:8081/");
+        MemoryRoutingTable.getInstance().addRoute("/baidu","https://www.baidu.com");
         HttpProxyServer httpProxyServer = new HttpProxyServer(8844);
         httpProxyServer.start();
     }

@@ -12,8 +12,8 @@ package com.justplay1994.github.cruiser.core.netty.server.http.proxyserver.back;
  **/
 
 import com.justplay1994.github.cruiser.core.exception.RouteException;
-import com.justplay1994.github.cruiser.core.route.BaseCruiserRoute;
-import com.justplay1994.github.cruiser.core.route.impl.SimpleRoutingTable;
+import com.justplay1994.github.cruiser.core.route.BaseCruiserRouteItem;
+import com.justplay1994.github.cruiser.core.route.impl.MemoryRoutingTable;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -22,7 +22,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.MalformedURLException;
@@ -57,7 +56,7 @@ public class HttpProxyBackClient extends AbstractForward{
         b.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(new LoggingHandler());
+//                ch.pipeline().addLast(new LoggingHandler());
                 ch.pipeline().addLast(new HttpClientCodec());
                 ch.pipeline().addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 64));// 将 解码到的多个http消息合成一个FullHttpRequest/FullHttpRespone
                 ch.pipeline().addLast(new HttpProxyBackClientInBoundHandler(frontChannel));
@@ -66,8 +65,6 @@ public class HttpProxyBackClient extends AbstractForward{
 
 
         try {
-            //TODO 思考，为什么会跳转至源ip
-
             forward();
             URL url = new URL(msg.uri());
             int backPort = url.getPort() == -1 ? 80 : url.getPort();
@@ -95,7 +92,7 @@ public class HttpProxyBackClient extends AbstractForward{
     @Override
     public void forward() throws RouteException, URISyntaxException, MalformedURLException {
         URI uri = new URI(msg.uri());
-        BaseCruiserRoute baseCruiserRoute = SimpleRoutingTable.getInstance().match(uri.getPath());
+        BaseCruiserRouteItem baseCruiserRoute = MemoryRoutingTable.getInstance().match(uri.getPath());
         if (baseCruiserRoute == null)
             throw new RouteException("this location is not match! "+msg.uri());
         msg.setUri(baseCruiserRoute.getForwardUrl(getFullPath(uri)).toString());

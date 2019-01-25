@@ -44,7 +44,7 @@ public class BaseCruiserRouteTest {
     @Test
     public void getForwardPath() throws MalformedURLException {
 
-        BaseCruiserRoute baseCruiserRoute = new BaseCruiserRoute("/foo/","http://192.168.1.48/bar/");
+        BaseCruiserRouteItem baseCruiserRoute = new BaseCruiserRouteItem("/foo/","http://192.168.1.48/bar/");
         System.out.println(baseCruiserRoute.getForwardUrl("/foo/api"));
 
     }
